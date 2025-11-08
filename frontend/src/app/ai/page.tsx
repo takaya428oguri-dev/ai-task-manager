@@ -9,7 +9,6 @@ export default function AIPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // メッセージ送信処理
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -19,25 +18,35 @@ export default function AIPage() {
     setInput("");
     setIsLoading(true);
 
-    // ダミーAI応答（本番はAPI連携予定）
-    setTimeout(() => {
-      const aiMessage = {
-        role: "assistant",
-        content: `あなたのメッセージ「${userMessage.content}」を受け取りました！`,
-      };
-      setMessages((prev) => [...prev, aiMessage]);
+    try {
+      const res = await fetch("http://localhost:8080/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage.content }),
+      });
+      const data = await res.json();
+
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: data.reply },
+      ]);
+    } catch (error) {
+      console.error(error);
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: "AIとの通信中にエラーが発生しました" },
+      ]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
-      {/* ヘッダー */}
       <header className="p-4 bg-white shadow-md text-xl font-bold text-gray-800">
         AIアシスタント
       </header>
 
-      {/* チャットエリア */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => (
           <div
@@ -57,7 +66,6 @@ export default function AIPage() {
             </div>
           </div>
         ))}
-
         {isLoading && (
           <div className="text-gray-500 text-sm animate-pulse">
             AIが考え中です...
@@ -65,7 +73,6 @@ export default function AIPage() {
         )}
       </main>
 
-      {/* 入力欄 */}
       <footer className="p-4 bg-white border-t">
         <form onSubmit={handleSend} className="flex space-x-2">
           <input
