@@ -1,21 +1,25 @@
 package com.example.taskmanager.controller;
 
 import org.springframework.web.bind.annotation.*;
-import java.util.HashMap;
+import org.springframework.http.ResponseEntity;
+import com.example.taskmanager.service.OpenAiService;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/chat")
+@RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ChatController {
 
-    @PostMapping
-    public Map<String, String> chat(@RequestBody Map<String, String> request) {
-        String userMessage = request.get("message");
-        String aiResponse = "AIが受け取ったメッセージ: " + userMessage;
+    private final OpenAiService openAiService;
 
-        Map<String, String> response = new HashMap<>();
-        response.put("reply", aiResponse);
-        return response;
+    public ChatController(OpenAiService openAiService) {
+        this.openAiService = openAiService;
+    }
+
+    @PostMapping("/chat")
+    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> request) {
+        String message = request.get("message");
+        String response = openAiService.getChatResponse(message);
+        return ResponseEntity.ok(Map.of("response", response));
     }
 }
