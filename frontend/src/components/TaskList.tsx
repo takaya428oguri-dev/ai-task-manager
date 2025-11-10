@@ -21,13 +21,24 @@ export default function TaskList() {
   }, [tasks]);
 
   const addTask = (title: string) => {
-    const newTask: Task = { id: uuidv4(), title, completed: false };
+    const now = new Date();
+    const newTask: Task = {
+      id: uuidv4(),
+      title,
+      completed: false,
+      createdAt: now,
+      updatedAt: now,
+    };
     setTasks((prev) => [...prev, newTask]);
   };
 
   const toggleTask = (id: string) => {
     setTasks((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      prev.map((t) =>
+        t.id === id
+          ? { ...t, completed: !t.completed, updatedAt: new Date() }
+          : t
+      )
     );
   };
 
@@ -38,20 +49,21 @@ export default function TaskList() {
   return (
     <div>
       <TaskForm onAdd={addTask} />
-      <ul>
-        {tasks.length === 0 ? (
-          <p className="text-gray-500">タスクがありません。</p>
-        ) : (
-          tasks.map((task) => (
+
+      {tasks.length === 0 ? (
+        <p className="text-gray-500">タスクがありません。</p>
+      ) : (
+        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {tasks.map((task) => (
             <TaskItem
               key={task.id}
               task={task}
               onToggle={toggleTask}
               onDelete={deleteTask}
             />
-          ))
-        )}
-      </ul>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

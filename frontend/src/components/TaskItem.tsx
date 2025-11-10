@@ -10,28 +10,49 @@ interface TaskItemProps {
 
 export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
   return (
-    <li className="flex justify-between items-center bg-gray-50 border rounded-lg p-3 mb-2">
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={task.completed}
-          onChange={() => onToggle(task.id)}
-          className="cursor-pointer"
-        />
-        <span
-          className={`${
-            task.completed ? "line-through text-gray-500" : "text-gray-800"
-          }`}
-        >
-          {task.title}
-        </span>
+    <li
+      className={`rounded-lg p-4 mb-4 shadow-sm transition-colors border ${
+        task.completed
+          ? "bg-green-50 border-green-200"
+          : "bg-white border-gray-100 hover:shadow-md"
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            checked={task.completed}
+            onChange={() => onToggle(task.id)}
+            className="h-5 w-5 rounded-md cursor-pointer text-indigo-600 focus:ring-indigo-500 mt-1"
+          />
+          <div>
+            <p
+              className={`text-sm font-medium ${
+                task.completed ? "line-through text-green-800" : "text-gray-900"
+              }`}
+            >
+              {task.title}
+            </p>
+            <div className="mt-1 text-xs text-gray-500">
+              作成: {new Date(task.createdAt).toLocaleString('ja-JP')}
+              {task.updatedAt > task.createdAt && (
+                <span className="ml-2">
+                  更新: {new Date(task.updatedAt).toLocaleString('ja-JP')}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => onDelete(task.id)}
+            className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md"
+              aria-label={`Delete ${task.title}`}
+            >
+              ✕
+            </button>
+          </div>
       </div>
-      <button
-        onClick={() => onDelete(task.id)}
-        className="text-red-500 hover:text-red-700"
-      >
-        ✕
-      </button>
     </li>
   );
 }
