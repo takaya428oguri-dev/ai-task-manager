@@ -6,9 +6,10 @@ interface TaskItemProps {
   task: Task;
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit?: (task: Task) => void;
 }
 
-export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
+export default function TaskItem({ task, onToggle, onDelete, onEdit }: TaskItemProps) {
   return (
     <li
       className={`rounded-lg p-4 mb-4 shadow-sm transition-colors border ${
@@ -34,23 +35,39 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
               {task.title}
             </p>
             <div className="mt-1 text-xs text-gray-500">
-              作成: {new Date(task.createdAt).toLocaleString('ja-JP')}
+              作成: {new Date(task.createdAt).toLocaleString("ja-JP")}
               {task.updatedAt > task.createdAt && (
                 <span className="ml-2">
-                  更新: {new Date(task.updatedAt).toLocaleString('ja-JP')}
+                  更新: {new Date(task.updatedAt).toLocaleString("ja-JP")}
                 </span>
+              )}
+              {task.dueDate && (
+                <div className="mt-1">
+                  <span className="text-xs font-medium">期限: </span>
+                  <span className="text-xs">{new Date(task.dueDate).toLocaleString("ja-JP")}</span>
+                </div>
               )}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {onEdit && (
+            <button
+              onClick={() => onEdit(task)}
+              className="text-gray-600 hover:text-gray-800 px-2 py-1 rounded-md"
+              title="編集"
+              aria-label={`Edit ${task.title}`}
+            >
+              ✎
+            </button>
+          )}
           <button
             onClick={() => onDelete(task.id)}
             className="text-red-500 hover:text-red-700 px-2 py-1 rounded-md"
-              aria-label={`Delete ${task.title}`}
-            >
-              ✕
-            </button>
+            aria-label={`Delete ${task.title}`}
+          >
+            ✕
+          </button>
           </div>
       </div>
     </li>
