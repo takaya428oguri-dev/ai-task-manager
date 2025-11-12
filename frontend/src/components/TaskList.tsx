@@ -6,34 +6,39 @@ import TaskItem from "./TaskItem";
 import { v4 as uuidv4 } from "uuid";
 
 export default function TaskList() {
-  // ✅ localStorage から初期値を読み込む（日時文字列を Date に復元）
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("tasks");
-      if (!stored) return [];
+  // ✅ クライアント側のみで状態を管理
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // 編集中のタスク（あるときはフォームが編集モードになる）
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+
+  // マウント後に localStorage から読み込む
+  useEffect(() => {
+    const stored = localStorage.getItem("tasks");
+    if (stored) {
       try {
         const parsed = JSON.parse(stored) as any[];
-        return parsed.map((t) => ({
+        const tasks = parsed.map((t) => ({
           ...t,
           createdAt: t.createdAt ? new Date(t.createdAt) : new Date(),
           updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(),
           dueDate: t.dueDate ? new Date(t.dueDate) : null,
         }));
+        setTasks(tasks);
       } catch (e) {
         console.error("tasks load error", e);
-        return [];
       }
     }
-    return [];
-  });
-
-  // 編集中のタスク（あるときはフォームが編集モードになる）
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
+    setIsLoaded(true);
+  }, []);
 
   // タスクが変わるたびに保存
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    if (isLoaded) {
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+  }, [tasks, isLoaded]);
 
   const addTask = (title: string, dueDate?: Date | null, description?: string) => {
     const now = new Date();
@@ -89,7 +94,9 @@ export default function TaskList() {
         initialTask={editingTask ?? undefined}
       />
 
-      {tasks.length === 0 ? (
+      {!isLoaded ? (
+        <p className="text-gray-400">読み込み中...</p>
+      ) : tasks.length === 0 ? (
         <p className="text-gray-500">タスクがありません。</p>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
