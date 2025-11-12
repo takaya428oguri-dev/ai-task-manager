@@ -35,7 +35,7 @@ export default function TaskList() {
     localStorage.setItem("tasks", JSON.stringify(tasks));
   }, [tasks]);
 
-  const addTask = (title: string, dueDate?: Date | null) => {
+  const addTask = (title: string, dueDate?: Date | null, description?: string) => {
     const now = new Date();
     const newTask: Task = {
       id: uuidv4(),
@@ -44,6 +44,7 @@ export default function TaskList() {
       createdAt: now,
       updatedAt: now,
       dueDate: dueDate ?? null,
+      description: description ?? null,
     };
     setTasks((prev) => [...prev, newTask]);
   };
@@ -62,11 +63,11 @@ export default function TaskList() {
     setEditingTask(task);
   };
 
-  const updateTask = (id: string, title: string, dueDate?: Date | null) => {
+  const updateTask = (id: string, title: string, dueDate?: Date | null, description?: string) => {
     setTasks((prev) =>
       prev.map((t) =>
         t.id === id
-          ? { ...t, title, dueDate: dueDate ?? null, updatedAt: new Date() }
+          ? { ...t, title, dueDate: dueDate ?? null, description: description ?? null, updatedAt: new Date() }
           : t
       )
     );

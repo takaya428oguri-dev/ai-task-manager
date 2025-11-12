@@ -3,8 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Task } from "@/types/Task";
 
 interface TaskFormProps {
-  onAdd: (title: string, dueDate?: Date | null) => void;
-  onUpdate?: (id: string, title: string, dueDate?: Date | null) => void;
+  onAdd: (title: string, dueDate?: Date | null, description?: string) => void;
+  onUpdate?: (id: string, title: string, dueDate?: Date | null, description?: string) => void;
   onCancel?: () => void;
   initialTask?: Task | null;
 }
@@ -13,16 +13,19 @@ export default function TaskForm({ onAdd, onUpdate, onCancel, initialTask }: Tas
   const [title, setTitle] = useState("");
   // datetime-local value as string like "2025-11-11T13:00"
   const [due, setDue] = useState<string>("");
+  const [description, setDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialTask) {
       setTitle(initialTask.title ?? "");
       setDue(initialTask.dueDate ? toDatetimeLocal(initialTask.dueDate) : "");
+      setDescription(initialTask.description ?? "");
       setError(null);
     } else {
       setTitle("");
       setDue("");
+      setDescription("");
       setError(null);
     }
   }, [initialTask]);
@@ -62,16 +65,19 @@ export default function TaskForm({ onAdd, onUpdate, onCancel, initialTask }: Tas
       dueDate = null;
     }
 
+    const desc = description.trim();
+
     if (initialTask && onUpdate) {
-      onUpdate(initialTask.id, trimmed, dueDate);
+      onUpdate(initialTask.id, trimmed, dueDate, desc || undefined);
     } else {
-      onAdd(trimmed, dueDate ?? null);
+      onAdd(trimmed, dueDate ?? null, desc || undefined);
     }
 
     // clear when adding (if in edit mode, parent will clear initialTask)
     if (!initialTask) {
       setTitle("");
       setDue("");
+      setDescription("");
       setError(null);
     }
   };
@@ -110,6 +116,13 @@ export default function TaskForm({ onAdd, onUpdate, onCancel, initialTask }: Tas
             </button>
           )}
         </div>
+        <textarea
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="詳細事項を入力（オプション）"
+          className="border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+          rows={3}
+        />
         {error && <div className="text-sm text-red-600">{error}</div>}
       </form>
     </div>
