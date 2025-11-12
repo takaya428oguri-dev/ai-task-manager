@@ -3,6 +3,7 @@ package com.example.taskmanager.controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import com.example.taskmanager.service.OpenAiService;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -17,9 +18,19 @@ public class ChatController {
     }
 
     @PostMapping("/chat")
-    public ResponseEntity<Map<String, String>> chat(@RequestBody Map<String, String> request) {
+    public ResponseEntity<Map<String, Object>> chat(@RequestBody Map<String, String> request) {
         String message = request.get("message");
+        if (message == null || message.trim().isEmpty()) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Message is required");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+
         String response = openAiService.getChatResponse(message);
-        return ResponseEntity.ok(Map.of("response", response));
+        Map<String, Object> result = new HashMap<>();
+        result.put("success", true);
+        result.put("response", response);
+        return ResponseEntity.ok(result);
     }
 }
