@@ -1,12 +1,14 @@
 package com.example.taskmanager.controller;
 
 import org.springframework.web.bind.annotation.*;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.ResponseEntity;
 import com.example.taskmanager.service.OpenAiService;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@ConditionalOnProperty(prefix = "openai", name = "enabled", havingValue = "true", matchIfMissing = false)
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ChatController {
